@@ -1,0 +1,100 @@
+
+---************How to Implement Constraints in SQL***************
+/*Implementing constraints in SQL ensures the accuracy, integrity, and reliability of data in a database. 
+Constraints are rules enforced on data columns.
+Common SQL Constraints
+    PRIMARY KEY
+    FOREIGN KEY
+    UNIQUE
+    NOT NULL
+    CHECK
+    DEFAULT
+*/
+
+-- Customers Table
+CREATE TABLE Customers (
+    CustomerID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE,
+    Age INT CHECK (Age >= 18),
+    CreatedDate DATE DEFAULT Getdate()
+);
+
+-- Accounts Table
+CREATE TABLE Accounts (
+    AccountID INT PRIMARY KEY,
+    CustomerID INT,
+    AccountType VARCHAR(20) CHECK (AccountType IN ('Savings', 'Current')),
+    Balance DECIMAL(10, 2) CHECK (Balance >= 0),
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+-- Insert into Customers
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES 
+(101, 'Alice', 'alice@example.com', 30),
+(102, 'Bob', 'bob@example.com', 25);
+
+-- Insert into Accounts
+INSERT INTO Accounts (AccountID, CustomerID, AccountType, Balance)
+VALUES 
+(201, 101, 'Savings', 10000.00),
+(202, 102, 'Current', 2500.00);
+
+Select * from Customers
+Select * from Accounts
+
+--Violation of Primary Key
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES 
+(101, 'Ronaldo', 'Ronaldo@example.com', 35)
+
+INSERT INTO Customers (Name, Email, Age)
+VALUES 
+( 'Ronaldo', 'Ronaldo@example.com', 35)
+
+--Violation of NOT NULL
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (103, NULL, 'newuser@example.com', 28); --  Error: Name cannot be NULL
+
+--Violation of UNIQUE
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (104, 'Charlie', 'alice@example.com', 29); --  Error: Email must be unique
+
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (104, 'Charlie', Null, 29); --  Error: Email must be unique
+
+Select * from Customers
+
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (105, 'Ron', Null, 32); 
+
+
+--Violation of CHECK
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (105, 'David', 'david@example.com', 16); --  Error: Age must be >= 18
+
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (105, 'David', 'david@example.com', 20);  
+
+
+INSERT INTO Customers (CustomerID, Name, Email, Age)
+VALUES (106, 'David1', 'david1@example.com', 16)
+
+
+--Violation of FOREIGN KEY
+
+INSERT INTO Accounts (AccountID, CustomerID, AccountType, Balance)
+VALUES (203, 999, 'Savings', 1000.00); -- Error: CustomerID 999 does not exist
+
+
+Select * from Customers
+Select * from Accounts
+
+sp_help Customers
+sp_help Accounts
+
+Alter table Customers drop constraint  CK__Customers__Age__3E1D39E1
+
+delete Accounts where AccountID = 201
+Delete Customers where CustomerID = 101
